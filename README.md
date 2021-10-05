@@ -2,15 +2,15 @@
 
 This is a sample Rive app for Android. 
 
-The simple to use [RiveAnimationView](https://github.com/rive-app/rive-android/blob/master/kotlin/src/main/java/app/rive/runtime/kotlin/RiveAnimationView.kt) allows you to play animations or state machines in a couple of lines of code. This is great to get started with and check out the [help center](https://help.rive.app/runtimes/quick-start). 
+The [RiveAnimationView](https://github.com/rive-app/rive-android/blob/master/kotlin/src/main/java/app/rive/runtime/kotlin/RiveAnimationView.kt) view is great for simple use cases, but in this example we want to shows how to use the [core](https://github.com/rive-app/rive-android/tree/master/kotlin/src/main/java/app/rive/runtime/kotlin/core) parts of the animation library to make a custom animation loop with far more control!
 
-The animation view is great for simple use cases, but in this example we want to shows how to use the [core](https://github.com/rive-app/rive-android/tree/master/kotlin/src/main/java/app/rive/runtime/kotlin/core) parts of the animation library to make a custom animation loop with far more control!
+# App sample gif
 
 ![piggy](https://user-images.githubusercontent.com/1216025/135996961-661949f8-974e-4f22-a9bc-adbb4a6e45cb.gif) 
 
-# [Piggy.riv](https://github.com/mjtalbot/rive_piggy/tree/main/app/src/main/res/raw/piggy.riv) file set up. 
+# Animation file setup file set up 
 
-The piggy .riv file is split into 3 artboards
+The [Piggy.riv](https://github.com/mjtalbot/rive_piggy/tree/main/app/src/main/res/raw/piggy.riv) file is split into 3 artboards
 
 - Background
 - Piggy
