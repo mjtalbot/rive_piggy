@@ -4,6 +4,7 @@ package com.test.piggybank
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import app.rive.runtime.kotlin.RiveTextureView
 import app.rive.runtime.kotlin.core.*
@@ -12,17 +13,34 @@ import app.rive.runtime.kotlin.renderers.RendererSkia
 
 class RivePiggyButton(context: Context, attrs: AttributeSet?) : RiveTextureView(context, attrs) {
 
+
+    /** Our custom render loop!
+     *  calls to draw/advance will happen from a separate thread so beware!
+     */
     override val renderer = object : RendererSkia() {
-        // this is happening in a separate thread, so we do need to be careful about modifying
-        // things in a threadsafe way.
+        /**
+         * Draw our animation in its current state when android requests a draw operation.
+         *
+         * 1. Bind the canvas to our low level renderer
+         *  - the renderer will run draw operations against the canvas when requested.
+         * 2. Align the renderer, so it knows how to fit the artboard draw operations onto the canvas
+         * 3. Draw the background
+         * 4. Draw any flying coins
+         * 5. Draw the pig
+         */
         override fun draw() {
 
-            backgroundArtboard.drawSkia(cppPointer, Fit.COVER, Alignment.CENTER);
+            save()
+            align(Fit.COVER, Alignment.CENTER,   AABB(width, height),backgroundArtboard.bounds,)
+
+            backgroundArtboard.drawSkia(cppPointer);
+
             val copy = flyingCoins.toList()
             for (pair in copy) {
-                pair.first.drawSkia(cppPointer, Fit.COVER, Alignment.CENTER);
+                pair.first.drawSkia(cppPointer);
             }
-            piggyArtboard.drawSkia(cppPointer, Fit.COVER, Alignment.CENTER);
+            piggyArtboard.drawSkia(cppPointer);
+            restore()
         }
 
         /**
@@ -85,6 +103,9 @@ class RivePiggyButton(context: Context, attrs: AttributeSet?) : RiveTextureView(
     }
 
 
+    /**
+     * Someone presses anywhere on the screen, if its a down press lets make the piggy sing!
+      */
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         // we want to trigger a coin animation when we detect a down press
         if (event?.action == MotionEvent.ACTION_DOWN) {
@@ -114,7 +135,7 @@ class RivePiggyButton(context: Context, attrs: AttributeSet?) : RiveTextureView(
 
         // its time advance our coin, it forces the beginning key of the animation to be applied.
         // without this, the first frame would be how the artboard looks in design mode, in this case
-        // a coin in the center of the artbaord.
+        // a coin in the center of the artboard.
         coinStateMachineInstance.apply(coinArtboardInstance, 0.0f);
         coinArtboardInstance.advance(0.0f);
 
