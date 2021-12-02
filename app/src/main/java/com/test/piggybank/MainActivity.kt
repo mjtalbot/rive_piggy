@@ -7,7 +7,7 @@ import app.rive.runtime.kotlin.core.Rive
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Rive.INSTANCE.init(applicationContext)
+        Rive.init(applicationContext)
         setContentView(R.layout.activity_main)
     }
 }

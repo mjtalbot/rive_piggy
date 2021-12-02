@@ -1,30 +1,25 @@
 package com.test.piggybank
 
 
-
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import app.rive.runtime.kotlin.RiveTextureView
 import app.rive.runtime.kotlin.core.*
-
-
 import app.rive.runtime.kotlin.renderers.RendererSkia
 
 
-class RivePiggyButton(context: Context, p1: AttributeSet?) : RiveTextureView(context, p1) {
-    // Initialize renderer first: we can't create Files without one.
+class RivePiggyButton(context: Context, attrs: AttributeSet?) : RiveTextureView(context, attrs) {
 
-    override fun getRenderer(): RendererSkia {
-        return renderer2;
-    }
-
-    val renderer2 = object : RendererSkia() {
+    override val renderer = object : RendererSkia() {
+        // this is happening in a separate thread, so we do need to be careful about modifying
+        // things in a threadsafe way.
         override fun draw() {
+
             backgroundArtboard.drawSkia(cppPointer, Fit.COVER, Alignment.CENTER);
-            for (pair in flyingCoins) {
+            val copy = flyingCoins.toList()
+            for (pair in copy) {
                 pair.first.drawSkia(cppPointer, Fit.COVER, Alignment.CENTER);
             }
             piggyArtboard.drawSkia(cppPointer, Fit.COVER, Alignment.CENTER);
@@ -65,29 +60,8 @@ class RivePiggyButton(context: Context, p1: AttributeSet?) : RiveTextureView(con
     }
 
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        // we want to trigger a coin animation when we detect a down press
-        if (event?.action == MotionEvent.ACTION_DOWN) {
-            showMeTheMoney()
-        }
-
-        return super.onTouchEvent(event)
-    }
-
     // Keep a reference to the file to keep resources around.
     private val file: File = File(resources.openRawResource(R.raw.piggy).readBytes())
-
-
-    private var bounds: AABB = AABB(100f, 100f)
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        renderer.start()
-    }
-
-    override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
-        bounds = AABB(width.toFloat(), height.toFloat())
-    }
 
     private val backgroundArtboard: Artboard = file.artboard("Background");
     private val piggyArtboard: Artboard = file.artboard("Piggy");
@@ -104,9 +78,20 @@ class RivePiggyButton(context: Context, p1: AttributeSet?) : RiveTextureView(con
     private val flyingCoinTimes: MutableMap<Pair<Artboard, StateMachineInstance>, Float> =
         mutableMapOf()
 
+
     init {
         piggyStateMachineInstance = StateMachineInstance(piggyStateMachine)
         pressedInput = piggyStateMachineInstance.input("Pressed") as SMITrigger
+    }
+
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        // we want to trigger a coin animation when we detect a down press
+        if (event?.action == MotionEvent.ACTION_DOWN) {
+            showMeTheMoney()
+        }
+
+        return super.onTouchEvent(event)
     }
 
     /**
